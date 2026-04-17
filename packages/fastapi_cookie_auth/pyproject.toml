@@ -11,6 +11,7 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi",
     "passlib[argon2]",
+    "python-multipart",
     "python-jose[cryptography]",
     "pydantic",
 ]

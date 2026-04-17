@@ -89,8 +89,9 @@ As a future standalone Git dependency:
 dependencies:
   cookie_auth_client:
     git:
-      url: git@github.com:your-org/cookie_auth_client.git
-      ref: main
+      url: https://github.com/SensawayDev/cookie-auth-kit.git
+      path: packages/cookie_auth_client
+      ref: v0.1.0
 ```
 
 ## Basic Usage
@@ -231,7 +232,7 @@ Install from this mono-repo with a Git dependency:
 dependencies:
   cookie_auth_client:
     git:
-      url: git@github.com:your-org/cookie_auth_kit.git
+      url: https://github.com/SensawayDev/cookie-auth-kit.git
       path: packages/cookie_auth_client
       ref: v0.1.0
 ```

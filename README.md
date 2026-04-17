@@ -1,4 +1,4 @@
-# cookie_auth_kit
+# cookie-auth-kit
 
 Reusable auth kit for first-party Flutter web apps backed by FastAPI.
 
@@ -50,7 +50,7 @@ Flutter apps own:
 dependencies:
   cookie_auth_client:
     git:
-      url: git@github.com:your-org/cookie_auth_kit.git
+      url: https://github.com/SensawayDev/cookie-auth-kit.git
       path: packages/cookie_auth_client
       ref: v0.1.0
 ```
@@ -58,7 +58,7 @@ dependencies:
 ## Install In A FastAPI App
 
 ```text
-fastapi-cookie-auth @ git+ssh://git@github.com/your-org/cookie_auth_kit.git@v0.1.0#subdirectory=packages/fastapi_cookie_auth
+fastapi-cookie-auth @ git+https://github.com/SensawayDev/cookie-auth-kit.git@v0.1.0#subdirectory=packages/fastapi_cookie_auth
 ```
 
 ## Local Checks

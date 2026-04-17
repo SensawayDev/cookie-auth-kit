@@ -1,5 +1,6 @@
 from fastapi_cookie_auth.config import CookieAuthConfig
 from fastapi_cookie_auth.cookies import clear_refresh_cookie, set_refresh_cookie
+from fastapi_cookie_auth.claims import create_current_claims_dependency
 from fastapi_cookie_auth.csrf import (
     clear_csrf_cookie,
     new_csrf_token,
@@ -25,6 +26,7 @@ __all__ = [
     "TokenResponse",
     "clear_csrf_cookie",
     "clear_refresh_cookie",
+    "create_current_claims_dependency",
     "create_access_token",
     "decode_access_token",
     "hash_password",

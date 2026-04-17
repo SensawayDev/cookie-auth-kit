@@ -8,6 +8,8 @@ from jose import JWTError, jwt
 
 from fastapi_cookie_auth.config import CookieAuthConfig
 
+RESERVED_ACCESS_TOKEN_CLAIMS = frozenset({"sub", "typ", "iat", "exp"})
+
 
 def create_access_token(
     *,
@@ -23,6 +25,10 @@ def create_access_token(
         "exp": int((now + config.access_token_ttl).timestamp()),
     }
     if extra_claims:
+        reserved_claims = RESERVED_ACCESS_TOKEN_CLAIMS.intersection(extra_claims)
+        if reserved_claims:
+            blocked = ", ".join(sorted(reserved_claims))
+            raise ValueError(f"extra_claims may not override reserved claims: {blocked}")
         payload.update(extra_claims)
     return jwt.encode(payload, config.jwt_secret, algorithm=config.jwt_alg)
 

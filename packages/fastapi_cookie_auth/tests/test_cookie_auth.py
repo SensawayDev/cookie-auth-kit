@@ -7,12 +7,14 @@ from types import SimpleNamespace
 from uuid import UUID, uuid4
 
 import pytest
-from fastapi import HTTPException, Response
+from fastapi import Depends, FastAPI, HTTPException, Response
+from fastapi.security import OAuth2PasswordRequestForm
 from starlette.requests import Request
 
 from fastapi_cookie_auth import (
     CookieAuthConfig,
     clear_refresh_cookie,
+    create_current_claims_dependency,
     create_access_token,
     decode_access_token,
     hash_password,
@@ -51,6 +53,15 @@ def test_access_token_round_trip_with_extra_claims():
     assert payload["sub"] == "user-1"
     assert payload["typ"] == "access"
     assert payload["is_superadmin"] is True
+
+
+def test_access_token_extra_claims_cannot_override_reserved_claims():
+    with pytest.raises(ValueError, match="reserved claims: exp, sub"):
+        create_access_token(
+            user_id="user-1",
+            config=_config(),
+            extra_claims={"sub": "other-user", "exp": 9999999999},
+        )
 
 
 def test_refresh_rotation_revokes_old_token_and_issues_new_one():
@@ -224,6 +235,26 @@ def test_router_helpers_login_refresh_and_logout():
     assert status.status == "ok"
     assert _response_cookies(response)[config.refresh_cookie_name].value == ""
     assert refresh_store.records[-1].revoked_at is not None
+
+
+def test_fastapi_form_dependency_can_be_registered():
+    app = FastAPI()
+
+    @app.post("/auth/login")
+    def login(form_data: OAuth2PasswordRequestForm = Depends()) -> dict[str, str]:
+        return {"username": form_data.username}
+
+    assert app.routes
+
+
+def test_current_claims_dependency_is_exported_and_decodes_token():
+    config = _config()
+    dependency = create_current_claims_dependency(config)
+    token = create_access_token(user_id="user-1", config=config)
+
+    claims = dependency(token)
+
+    assert claims["sub"] == "user-1"
 
 
 def _config() -> CookieAuthConfig:
