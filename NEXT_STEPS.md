@@ -6,7 +6,12 @@ package tests.
 
 ## Priority 1: Runnable Examples
 
-Build minimal runnable examples instead of README-only integration notes.
+Build minimal runnable examples instead of README-only integration notes. The
+examples should be aligned with the current package release version and pinned
+tag (`0.1.1` / `v0.1.1`) in their setup docs.
+
+Status: implemented in `examples/fastapi_app` and `examples/flutter_app` for
+the current `0.1.1` package release.
 
 FastAPI example:
 
@@ -99,7 +104,7 @@ CHANGELOG.md
 
 Initial entries should mention:
 
-- `v0.1.0` baseline.
+- `v0.1.1` baseline.
 - Any dependency contract changes.
 - Security-relevant behavior such as CSRF defaults, refresh rotation, and
   reserved JWT claim handling.

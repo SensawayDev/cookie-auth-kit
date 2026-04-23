@@ -14,8 +14,8 @@ docs/
   deployment.md
   security.md
 examples/
-  fastapi_app/README.md
-  flutter_app/README.md
+  fastapi_app/           # runnable FastAPI example app
+  flutter_app/           # runnable Flutter web example app
 ```
 
 The intended package names are:
@@ -23,7 +23,7 @@ The intended package names are:
 - Python: `fastapi-cookie-auth`
 - Dart: `cookie_auth_client`
 
-Keep package versions aligned when practical. Current baseline is `0.1.0`.
+Keep package versions aligned when practical. Current baseline is `0.1.1`.
 Consuming apps should pin tags, not moving branches.
 
 ## Ownership Boundary
@@ -156,12 +156,13 @@ apps to the new tag.
 
 ## Blue Farm Integration Notes
 
-Blue Farm currently consumes the kit by tag `v0.1.0`.
+Blue Farm should consume the kit by a pinned release tag. The current release
+baseline is `v0.1.1`.
 
 Backend dependency shape:
 
 ```text
-fastapi-cookie-auth @ git+https://github.com/SensawayDev/cookie-auth-kit.git@v0.1.0#subdirectory=packages/fastapi_cookie_auth
+fastapi-cookie-auth @ git+https://github.com/SensawayDev/cookie-auth-kit.git@v0.1.1#subdirectory=packages/fastapi_cookie_auth
 ```
 
 Flutter dependency shape:
@@ -171,7 +172,7 @@ cookie_auth_client:
   git:
     url: https://github.com/SensawayDev/cookie-auth-kit.git
     path: packages/cookie_auth_client
-    ref: v0.1.0
+    ref: v0.1.1
 ```
 
 Use HTTPS git URLs for dependencies so Docker builds and CI do not require SSH
@@ -183,10 +184,10 @@ frontend auth provider, env/docs, Docker config, or deployment scripts.
 
 ## Near-Term Improvements
 
-- Add a minimal runnable FastAPI example app with in-memory user and refresh
-  token adapters.
-- Add a minimal runnable Flutter web example that demonstrates restore, logout,
-  and automatic refresh retry behavior.
+- Keep the runnable FastAPI example app aligned with the current package
+  release and backend adapter contract.
+- Keep the runnable Flutter web example aligned with the current package
+  release and browser auth flow behavior.
 - Add typed exceptions or error codes for common auth failures.
 - Document exact adapter protocols for `UserRepository` and
   `RefreshTokenStore`.

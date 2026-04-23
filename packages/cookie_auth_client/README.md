@@ -91,7 +91,7 @@ dependencies:
     git:
       url: https://github.com/SensawayDev/cookie-auth-kit.git
       path: packages/cookie_auth_client
-      ref: v0.1.0
+      ref: v0.1.1
 ```
 
 ## Basic Usage
@@ -234,7 +234,7 @@ dependencies:
     git:
       url: https://github.com/SensawayDev/cookie-auth-kit.git
       path: packages/cookie_auth_client
-      ref: v0.1.0
+      ref: v0.1.1
 ```
 
 Run local checks:
