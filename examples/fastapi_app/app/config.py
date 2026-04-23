@@ -4,7 +4,7 @@ import os
 
 from fastapi_cookie_auth import CookieAuthConfig
 
-PACKAGE_VERSION = "0.1.1"
+PACKAGE_VERSION = "0.2.0"
 DEFAULT_ALLOWED_ORIGINS = (
     "http://localhost:8080,"
     "http://127.0.0.1:8080,"
@@ -29,7 +29,7 @@ def get_cookie_auth_config() -> CookieAuthConfig:
     return CookieAuthConfig(
         jwt_secret=os.getenv(
             "COOKIE_AUTH_EXAMPLE_JWT_SECRET",
-            "dev-secret-v0.1.1",
+            "dev-secret-v0.2.0",
         ),
         access_token_minutes=int(
             os.getenv("COOKIE_AUTH_EXAMPLE_ACCESS_TOKEN_MINUTES", "1")

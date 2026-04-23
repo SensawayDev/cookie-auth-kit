@@ -9,7 +9,7 @@ const _apiBaseUrl = String.fromEnvironment(
   defaultValue: 'http://localhost:8000',
 );
 const _csrfCookieName = 'example_csrf_token';
-const _exampleVersion = '0.1.1';
+const _exampleVersion = '0.2.0';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -315,7 +315,7 @@ class _AuthHomePageState extends State<AuthHomePage> {
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: const Text(
-                  'cookie_auth_client v0.1.1',
+                  'cookie_auth_client v0.2.0',
                   style: TextStyle(
                     color: Color(0xFF173F35),
                     fontWeight: FontWeight.w700,

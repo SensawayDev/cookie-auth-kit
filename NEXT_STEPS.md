@@ -8,10 +8,10 @@ package tests.
 
 Build minimal runnable examples instead of README-only integration notes. The
 examples should be aligned with the current package release version and pinned
-tag (`0.1.1` / `v0.1.1`) in their setup docs.
+tag (`0.2.0` / `v0.2.0`) in their setup docs.
 
 Status: implemented in `examples/fastapi_app` and `examples/flutter_app` for
-the current `0.1.1` package release.
+the current `0.2.0` package release.
 
 FastAPI example:
 
@@ -47,7 +47,7 @@ Add stable error identifiers for common auth failures without tying the package
 to one app's UI.
 
 Status: implemented with backend `X-Auth-Error-Code` headers plus Dart-side
-`AuthFailureReason` mapping for the current `0.1.1` package baseline.
+`AuthFailureReason` mapping for the current `0.2.0` package baseline.
 
 Backend candidates:
 
@@ -79,7 +79,7 @@ Compatibility requirement:
 
 Document exact backend adapter expectations in one place.
 
-Status: implemented in `docs/adapters.md` for the current `0.1.1` package
+Status: implemented in `docs/adapters.md` for the current `0.2.0` package
 baseline.
 
 Add or expand docs for:
@@ -103,7 +103,7 @@ docs/adapters.md
 Add a changelog before publishing another tag.
 
 Status: implemented in `CHANGELOG.md`, with an `Unreleased` section plus
-baseline entries for `v0.1.1` and `v0.1.0`.
+baseline entries for `v0.2.0`, `v0.1.1`, and `v0.1.0`.
 
 Suggested file:
 
@@ -113,7 +113,7 @@ CHANGELOG.md
 
 Initial entries should mention:
 
-- `v0.1.1` baseline.
+- `v0.2.0` baseline.
 - Any dependency contract changes.
 - Security-relevant behavior such as CSRF defaults, refresh rotation, and
   reserved JWT claim handling.

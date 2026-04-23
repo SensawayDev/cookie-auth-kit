@@ -150,7 +150,7 @@ def login(
 Install from this mono-repo with a Git dependency:
 
 ```text
-fastapi-cookie-auth @ git+https://github.com/SensawayDev/cookie-auth-kit.git@v0.1.1#subdirectory=packages/fastapi_cookie_auth
+fastapi-cookie-auth @ git+https://github.com/SensawayDev/cookie-auth-kit.git@v0.2.0#subdirectory=packages/fastapi_cookie_auth
 ```
 
 Run local checks:

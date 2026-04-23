@@ -9,10 +9,14 @@ The repository ships two packages that should stay aligned when practical:
 
 ## [Unreleased]
 
+- No unreleased changes yet.
+
+## [v0.2.0] - 2026-04-23
+
 ### Added
 
 - Runnable FastAPI and Flutter example apps under `examples/fastapi_app` and
-  `examples/flutter_app`, aligned to the current `0.1.1` package baseline.
+  `examples/flutter_app`, aligned to the current `0.2.0` package baseline.
 - Stable backend auth error codes via the `X-Auth-Error-Code` response header.
 - Dart-side `AuthFailureReason.sessionExpired` and
   `AuthFailureReason.serverRejected` mappings in addition to the existing
@@ -90,4 +94,3 @@ The repository ships two packages that should stay aligned when practical:
   - short-lived in-memory access tokens
   - readable CSRF cookie mirrored into a request header
   - explicit trusted-origin guidance for credentialed browser requests
-

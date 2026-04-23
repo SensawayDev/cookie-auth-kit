@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fastapi-cookie-auth"
-version = "0.1.1"
+version = "0.2.0"
 description = "Reusable FastAPI auth helpers for bearer access tokens and HttpOnly refresh cookies."
 readme = "README.md"
 requires-python = ">=3.12"

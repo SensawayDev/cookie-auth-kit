@@ -1,7 +1,7 @@
 # Backend Adapter Protocols
 
 This document explains the FastAPI-side adapter contracts used by
-`fastapi-cookie-auth` `0.1.1`.
+`fastapi-cookie-auth` `0.2.0`.
 
 The package is intentionally app-agnostic. It does not define a concrete user
 model, ORM model, database session, or migration. Each consuming app supplies

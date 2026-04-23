@@ -1,6 +1,6 @@
 # Flutter Web Example App
 
-This example is a runnable companion for `cookie_auth_client` `0.1.1`.
+This example is a runnable companion for `cookie_auth_client` `0.2.0`.
 
 It uses the package for generic session mechanics and keeps app-owned fields
 such as `display_name` and `role` in the example app.
@@ -39,7 +39,7 @@ flutter run -d chrome --web-hostname localhost --web-port 8080 --dart-define=API
 ## Dependency Shape
 
 Inside this repo the example uses a path dependency so it stays aligned with the
-local `cookie_auth_client` package version `0.1.1`.
+local `cookie_auth_client` package version `0.2.0`.
 
 For external apps, the matching git dependency is:
 
@@ -49,7 +49,7 @@ dependencies:
     git:
       url: https://github.com/SensawayDev/cookie-auth-kit.git
       path: packages/cookie_auth_client
-      ref: v0.1.1
+      ref: v0.2.0
 ```
 
 ## Demo Credentials

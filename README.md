@@ -53,13 +53,13 @@ dependencies:
     git:
       url: https://github.com/SensawayDev/cookie-auth-kit.git
       path: packages/cookie_auth_client
-      ref: v0.1.1
+      ref: v0.2.0
 ```
 
 ## Install In A FastAPI App
 
 ```text
-fastapi-cookie-auth @ git+https://github.com/SensawayDev/cookie-auth-kit.git@v0.1.1#subdirectory=packages/fastapi_cookie_auth
+fastapi-cookie-auth @ git+https://github.com/SensawayDev/cookie-auth-kit.git@v0.2.0#subdirectory=packages/fastapi_cookie_auth
 ```
 
 ## Local Checks
@@ -86,8 +86,8 @@ flutter analyze
 Start with matching package versions:
 
 ```text
-fastapi-cookie-auth 0.1.1
-cookie_auth_client 0.1.1
+fastapi-cookie-auth 0.2.0
+cookie_auth_client 0.2.0
 ```
 
 Update `CHANGELOG.md` for the release before tagging the repository.
@@ -95,8 +95,8 @@ Update `CHANGELOG.md` for the release before tagging the repository.
 Tag the repository:
 
 ```bash
-git tag v0.1.1
-git push origin v0.1.1
+git tag v0.2.0
+git push origin v0.2.0
 ```
 
 Consuming apps should depend on tags, not moving branches.

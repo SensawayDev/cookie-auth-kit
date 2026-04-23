@@ -25,7 +25,7 @@ The intended package names are:
 - Python: `fastapi-cookie-auth`
 - Dart: `cookie_auth_client`
 
-Keep package versions aligned when practical. Current baseline is `0.1.1`.
+Keep package versions aligned when practical. Current baseline is `0.2.0`.
 Consuming apps should pin tags, not moving branches.
 
 ## Ownership Boundary
@@ -162,12 +162,12 @@ apps to the new tag.
 ## Blue Farm Integration Notes
 
 Blue Farm should consume the kit by a pinned release tag. The current release
-baseline is `v0.1.1`.
+baseline is `v0.2.0`.
 
 Backend dependency shape:
 
 ```text
-fastapi-cookie-auth @ git+https://github.com/SensawayDev/cookie-auth-kit.git@v0.1.1#subdirectory=packages/fastapi_cookie_auth
+fastapi-cookie-auth @ git+https://github.com/SensawayDev/cookie-auth-kit.git@v0.2.0#subdirectory=packages/fastapi_cookie_auth
 ```
 
 Flutter dependency shape:
@@ -177,7 +177,7 @@ cookie_auth_client:
   git:
     url: https://github.com/SensawayDev/cookie-auth-kit.git
     path: packages/cookie_auth_client
-    ref: v0.1.1
+    ref: v0.2.0
 ```
 
 Use HTTPS git URLs for dependencies so Docker builds and CI do not require SSH
