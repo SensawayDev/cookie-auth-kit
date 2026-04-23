@@ -17,6 +17,7 @@ and database. The package owns only the generic auth mechanics.
 - CSRF cookie/header validation for cookie-backed routes
 - login/refresh/logout route helper functions
 - token-claims dependency factory
+- stable auth error codes via `X-Auth-Error-Code`
 
 ## What Each App Owns
 
@@ -57,7 +58,20 @@ Normal app endpoints should use:
 Authorization: Bearer <access-token>
 ```
 
+When the package rejects an auth-related request, it preserves the existing HTTP
+status behavior and also includes a stable response header:
+
+```http
+X-Auth-Error-Code: invalid_refresh_token
+```
+
+The exported `AuthErrorCode` values cover invalid credentials, refresh-token
+problems, CSRF/origin rejections, and invalid bearer-token cases.
+
 ## App Integration Sketch
+
+For the full backend adapter contract, see
+[`docs/adapters.md`](../../docs/adapters.md).
 
 Apps provide repository/store adapters:
 
@@ -128,6 +142,8 @@ def login(
   calling JavaScript can read cookies for the first-party app origin.
 - Same-site deployments are simplest. Cross-site deployments need a cookie
   domain/path strategy that lets the frontend read the CSRF cookie.
+- If browser clients need to read `X-Auth-Error-Code` on cross-origin requests,
+  expose that header in your CORS middleware or reverse proxy configuration.
 
 ## Using From This Repository
 

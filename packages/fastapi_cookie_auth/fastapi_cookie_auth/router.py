@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 
-from fastapi import HTTPException, Request, Response
+from fastapi import Request, Response
 from fastapi.security import OAuth2PasswordRequestForm
 
 from fastapi_cookie_auth.config import CookieAuthConfig
 from fastapi_cookie_auth.cookies import clear_refresh_cookie, set_refresh_cookie
 from fastapi_cookie_auth.csrf import validate_csrf_request
+from fastapi_cookie_auth.errors import AuthErrorCode, auth_http_exception
 from fastapi_cookie_auth.password import verify_password
 from fastapi_cookie_auth.refresh_tokens import (
     issue_login_tokens,
@@ -33,9 +34,17 @@ def login_with_password(
     normalized_email = form_data.username.lower().strip()
     user = user_repository.get_by_email(normalized_email)
     if not user or not user.is_active:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise auth_http_exception(
+            status_code=401,
+            detail="Invalid credentials",
+            code=AuthErrorCode.INVALID_CREDENTIALS,
+        )
     if not verify_password(form_data.password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise auth_http_exception(
+            status_code=401,
+            detail="Invalid credentials",
+            code=AuthErrorCode.INVALID_CREDENTIALS,
+        )
 
     tokens = issue_login_tokens(
         user=user,

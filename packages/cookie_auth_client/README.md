@@ -18,6 +18,7 @@ only owns the generic auth mechanics that tend to repeat across apps.
 - keeps only one refresh request in flight
 - attaches a CSRF header from a readable cookie for credentialed requests
 - exposes generic auth state through `CookieAuthController<TUser>`
+- maps backend auth failures into `AuthFailure` with stable reasons when needed
 
 ## Backend Contract
 
@@ -60,6 +61,14 @@ The default token JSON parser expects:
 }
 ```
 
+If the backend exposes `X-Auth-Error-Code`, `authFailureFromError` and the
+default controller login mapper can distinguish:
+
+- `AuthFailureReason.invalidCredentials`
+- `AuthFailureReason.sessionExpired`
+- `AuthFailureReason.serverRejected`
+- `AuthFailureReason.unavailable`
+
 ## Security Notes
 
 - The refresh token should be in an `HttpOnly` cookie so JavaScript cannot read
@@ -72,6 +81,8 @@ The default token JSON parser expects:
 - Use a double-submit CSRF cookie/header for refresh and logout.
 - Access tokens are still available to JavaScript while the page is open, so
   use normal XSS defenses such as output encoding and a Content Security Policy.
+- If your Flutter web app runs cross-origin from the API and you want to inspect
+  backend auth error codes, expose `X-Auth-Error-Code` in CORS.
 
 ## Installation
 
@@ -114,6 +125,29 @@ Login:
 
 ```dart
 await auth.login(email, password);
+```
+
+Map auth failures without hard-coding backend `detail` strings:
+
+```dart
+try {
+  await auth.login(email, password);
+} on AuthFailure catch (error) {
+  switch (error.reason) {
+    case AuthFailureReason.invalidCredentials:
+      // show invalid login UI
+      break;
+    case AuthFailureReason.sessionExpired:
+      // prompt for reauthentication
+      break;
+    case AuthFailureReason.serverRejected:
+      // show CSRF/origin/session policy error
+      break;
+    case AuthFailureReason.unavailable:
+      // show retry/unavailable state
+      break;
+  }
+}
 ```
 
 Logout:

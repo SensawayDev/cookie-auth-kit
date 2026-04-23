@@ -21,6 +21,7 @@ It implements an app-owned user model pattern:
 - backend-managed `HttpOnly` refresh cookies
 - refresh-token hashing, rotation, and revocation helpers
 - CSRF cookie/header support for cookie-backed routes
+- stable auth error codes for common backend rejection cases
 - Fetch Metadata and Origin validation helpers
 - Flutter session restore, login, logout, refresh, and retry behavior
 
@@ -89,6 +90,8 @@ fastapi-cookie-auth 0.1.1
 cookie_auth_client 0.1.1
 ```
 
+Update `CHANGELOG.md` for the release before tagging the repository.
+
 Tag the repository:
 
 ```bash
@@ -100,7 +103,9 @@ Consuming apps should depend on tags, not moving branches.
 
 ## Docs
 
+- [Changelog](CHANGELOG.md)
 - [Security](docs/security.md)
 - [Deployment](docs/deployment.md)
+- [Backend adapter protocols](docs/adapters.md)
 - [FastAPI example app](examples/fastapi_app/README.md)
 - [Flutter web example app](examples/flutter_app/README.md)

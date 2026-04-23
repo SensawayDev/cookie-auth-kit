@@ -177,24 +177,5 @@ class CookieAuthController<TUser> extends ChangeNotifier {
 }
 
 AuthFailure defaultLoginFailureMapper(Object error) {
-  if (error is AuthFailure) {
-    return error;
-  }
-
-  final statusCode = _statusCodeFor(error);
-  if (statusCode == 400 || statusCode == 401) {
-    return AuthFailure(AuthFailureReason.invalidCredentials, cause: error);
-  }
-
-  return AuthFailure(AuthFailureReason.unavailable, cause: error);
-}
-
-int? _statusCodeFor(Object error) {
-  try {
-    final response = (error as dynamic).response;
-    final statusCode = response?.statusCode;
-    return statusCode is int ? statusCode : null;
-  } catch (_) {
-    return null;
-  }
+  return authFailureFromError(error);
 }

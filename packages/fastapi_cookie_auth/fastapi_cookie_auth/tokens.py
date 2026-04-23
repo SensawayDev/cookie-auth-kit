@@ -3,10 +3,10 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Mapping
 
-from fastapi import HTTPException
 from jose import JWTError, jwt
 
 from fastapi_cookie_auth.config import CookieAuthConfig
+from fastapi_cookie_auth.errors import AuthErrorCode, auth_http_exception
 
 RESERVED_ACCESS_TOKEN_CLAIMS = frozenset({"sub", "typ", "iat", "exp"})
 
@@ -37,10 +37,22 @@ def decode_access_token(token: str, config: CookieAuthConfig) -> dict[str, objec
     try:
         payload = jwt.decode(token, config.jwt_secret, algorithms=[config.jwt_alg])
     except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise auth_http_exception(
+            status_code=401,
+            detail="Invalid token",
+            code=AuthErrorCode.INVALID_ACCESS_TOKEN,
+        )
 
     if payload.get("typ") != "access":
-        raise HTTPException(status_code=401, detail="Invalid token type")
+        raise auth_http_exception(
+            status_code=401,
+            detail="Invalid token type",
+            code=AuthErrorCode.INVALID_TOKEN_TYPE,
+        )
     if not payload.get("sub"):
-        raise HTTPException(status_code=401, detail="Invalid token payload")
+        raise auth_http_exception(
+            status_code=401,
+            detail="Invalid token payload",
+            code=AuthErrorCode.INVALID_TOKEN_PAYLOAD,
+        )
     return payload

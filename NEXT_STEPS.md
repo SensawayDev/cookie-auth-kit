@@ -46,6 +46,9 @@ flutter analyze
 Add stable error identifiers for common auth failures without tying the package
 to one app's UI.
 
+Status: implemented with backend `X-Auth-Error-Code` headers plus Dart-side
+`AuthFailureReason` mapping for the current `0.1.1` package baseline.
+
 Backend candidates:
 
 - Invalid credentials.
@@ -76,6 +79,9 @@ Compatibility requirement:
 
 Document exact backend adapter expectations in one place.
 
+Status: implemented in `docs/adapters.md` for the current `0.1.1` package
+baseline.
+
 Add or expand docs for:
 
 - `AuthUser`.
@@ -95,6 +101,9 @@ docs/adapters.md
 ## Priority 4: Release Notes
 
 Add a changelog before publishing another tag.
+
+Status: implemented in `CHANGELOG.md`, with an `Unreleased` section plus
+baseline entries for `v0.1.1` and `v0.1.0`.
 
 Suggested file:
 

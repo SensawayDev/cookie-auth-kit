@@ -11,8 +11,10 @@ packages/
   fastapi_cookie_auth/     # Python/FastAPI helper package
   cookie_auth_client/      # Flutter/Dart client package
 docs/
+  adapters.md
   deployment.md
   security.md
+CHANGELOG.md
 examples/
   fastapi_app/           # runnable FastAPI example app
   flutter_app/           # runnable Flutter web example app
@@ -34,6 +36,7 @@ The kit owns reusable auth mechanics only:
 - opaque refresh token stored in a backend-managed `HttpOnly` cookie
 - server-side refresh-token hashing, rotation, and revocation helpers
 - CSRF readable cookie/header support for cookie-backed routes
+- stable backend auth error codes for common failure cases
 - Fetch Metadata and Origin validation helpers
 - Flutter login, logout, refresh, restore, and one-time retry behavior
 
@@ -119,6 +122,7 @@ FastAPI package:
   `rotate_refresh_token`, `revoke_refresh_token`
 - `set_refresh_cookie`, `clear_refresh_cookie`
 - `validate_csrf_request`
+- `AuthErrorCode`, `AUTH_ERROR_CODE_HEADER`
 - route helpers in `fastapi_cookie_auth.router`
 
 Dart package:
@@ -128,6 +132,7 @@ Dart package:
 - `CookieAuthDio`
 - `CookieAuthController<TUser>`
 - `AuthFailure`, `AuthNotice`
+- `authFailureFromError`
 - `cookieAuthWithCredentials`
 - CSRF cookie reader abstractions
 
@@ -188,9 +193,10 @@ frontend auth provider, env/docs, Docker config, or deployment scripts.
   release and backend adapter contract.
 - Keep the runnable Flutter web example aligned with the current package
   release and browser auth flow behavior.
-- Add typed exceptions or error codes for common auth failures.
-- Document exact adapter protocols for `UserRepository` and
-  `RefreshTokenStore`.
+- Keep typed auth error codes and Dart failure mappings aligned with the current
+  backend contract.
+- Keep `docs/adapters.md` aligned with the current adapter protocol and commit
+  behavior.
 - Consider optional session/device listing helpers without moving ownership of
   users, roles, or app policy into the kit.
-- Add release notes or a changelog once versions move beyond `0.1.x`.
+- Keep `CHANGELOG.md` updated before publishing the next tag.

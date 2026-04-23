@@ -6,9 +6,8 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-from fastapi import HTTPException
-
 from fastapi_cookie_auth.config import CookieAuthConfig
+from fastapi_cookie_auth.errors import AuthErrorCode, auth_http_exception
 from fastapi_cookie_auth.tokens import create_access_token
 from fastapi_cookie_auth.types import AuthUser, RefreshTokenStore, UserRepository
 
@@ -58,20 +57,40 @@ def rotate_refresh_token(
     extra_claims_for_user: Callable[[AuthUser], Mapping[str, object]] | None = None,
 ) -> IssuedTokens:
     if not refresh_token:
-        raise HTTPException(status_code=401, detail="Missing refresh token")
+        raise auth_http_exception(
+            status_code=401,
+            detail="Missing refresh token",
+            code=AuthErrorCode.MISSING_REFRESH_TOKEN,
+        )
 
     token_hash = hash_refresh_token(refresh_token)
     stored_refresh = refresh_store.get_by_hash(token_hash)
     if not stored_refresh:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
+        raise auth_http_exception(
+            status_code=401,
+            detail="Invalid refresh token",
+            code=AuthErrorCode.INVALID_REFRESH_TOKEN,
+        )
     if stored_refresh.revoked_at is not None:
-        raise HTTPException(status_code=401, detail="Refresh token revoked")
+        raise auth_http_exception(
+            status_code=401,
+            detail="Refresh token revoked",
+            code=AuthErrorCode.REVOKED_REFRESH_TOKEN,
+        )
     if stored_refresh.expires_at <= datetime.now(timezone.utc):
-        raise HTTPException(status_code=401, detail="Refresh token expired")
+        raise auth_http_exception(
+            status_code=401,
+            detail="Refresh token expired",
+            code=AuthErrorCode.EXPIRED_REFRESH_TOKEN,
+        )
 
     user = user_repository.get_by_id(stored_refresh.user_id)
     if not user or not user.is_active:
-        raise HTTPException(status_code=401, detail="User inactive")
+        raise auth_http_exception(
+            status_code=401,
+            detail="User inactive",
+            code=AuthErrorCode.INACTIVE_USER,
+        )
 
     refresh_store.revoke(stored_refresh)
     new_refresh = _issue_refresh_token(

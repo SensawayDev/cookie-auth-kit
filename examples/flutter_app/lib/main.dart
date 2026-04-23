@@ -194,6 +194,10 @@ class _AuthHomePageState extends State<AuthHomePage> {
         _statusMessage = switch (error.reason) {
           AuthFailureReason.invalidCredentials =>
             'Invalid email or password.',
+          AuthFailureReason.sessionExpired =>
+            'Your session expired. Sign in again.',
+          AuthFailureReason.serverRejected =>
+            'The server rejected the auth request.',
           AuthFailureReason.unavailable => 'The auth service is unavailable.',
         };
       });

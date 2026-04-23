@@ -12,6 +12,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from starlette.requests import Request
 
 from fastapi_cookie_auth import (
+    AUTH_ERROR_CODE_HEADER,
+    AuthErrorCode,
     CookieAuthConfig,
     clear_refresh_cookie,
     create_current_claims_dependency,
@@ -102,7 +104,106 @@ def test_refresh_rotation_rejects_missing_token():
             config=_config(),
         )
 
-    assert error.value.status_code == 401
+    _assert_auth_error(
+        error.value,
+        status_code=401,
+        detail="Missing refresh token",
+        code=AuthErrorCode.MISSING_REFRESH_TOKEN,
+    )
+
+
+def test_refresh_rotation_rejects_invalid_token():
+    with pytest.raises(HTTPException) as error:
+        rotate_refresh_token(
+            refresh_token="missing-token",
+            user_repository=_UserRepository([]),
+            refresh_store=_RefreshTokenStore(),
+            config=_config(),
+        )
+
+    _assert_auth_error(
+        error.value,
+        status_code=401,
+        detail="Invalid refresh token",
+        code=AuthErrorCode.INVALID_REFRESH_TOKEN,
+    )
+
+
+def test_refresh_rotation_rejects_revoked_expired_and_inactive_cases():
+    config = _config()
+    user = _User(id=uuid4(), email="user@example.com")
+    active_users = _UserRepository([user])
+
+    revoked_store = _RefreshTokenStore(
+        [
+            _RefreshToken(
+                user_id=user.id,
+                token_hash=hash_refresh_token("revoked-token"),
+                expires_at=datetime.now(timezone.utc) + timedelta(days=1),
+                revoked_at=datetime.now(timezone.utc),
+            )
+        ]
+    )
+    with pytest.raises(HTTPException) as revoked_error:
+        rotate_refresh_token(
+            refresh_token="revoked-token",
+            user_repository=active_users,
+            refresh_store=revoked_store,
+            config=config,
+        )
+    _assert_auth_error(
+        revoked_error.value,
+        status_code=401,
+        detail="Refresh token revoked",
+        code=AuthErrorCode.REVOKED_REFRESH_TOKEN,
+    )
+
+    expired_store = _RefreshTokenStore(
+        [
+            _RefreshToken(
+                user_id=user.id,
+                token_hash=hash_refresh_token("expired-token"),
+                expires_at=datetime.now(timezone.utc) - timedelta(seconds=1),
+            )
+        ]
+    )
+    with pytest.raises(HTTPException) as expired_error:
+        rotate_refresh_token(
+            refresh_token="expired-token",
+            user_repository=active_users,
+            refresh_store=expired_store,
+            config=config,
+        )
+    _assert_auth_error(
+        expired_error.value,
+        status_code=401,
+        detail="Refresh token expired",
+        code=AuthErrorCode.EXPIRED_REFRESH_TOKEN,
+    )
+
+    inactive_user = _User(id=user.id, email=user.email, is_active=False)
+    inactive_store = _RefreshTokenStore(
+        [
+            _RefreshToken(
+                user_id=user.id,
+                token_hash=hash_refresh_token("inactive-token"),
+                expires_at=datetime.now(timezone.utc) + timedelta(days=1),
+            )
+        ]
+    )
+    with pytest.raises(HTTPException) as inactive_error:
+        rotate_refresh_token(
+            refresh_token="inactive-token",
+            user_repository=_UserRepository([inactive_user]),
+            refresh_store=inactive_store,
+            config=config,
+        )
+    _assert_auth_error(
+        inactive_error.value,
+        status_code=401,
+        detail="User inactive",
+        code=AuthErrorCode.INACTIVE_USER,
+    )
 
 
 def test_refresh_cookie_helpers_set_and_clear_cookie():
@@ -161,7 +262,12 @@ def test_csrf_validation_rejects_cross_site_and_mismatched_tokens():
             config,
             require_token=True,
         )
-    assert cross_site_error.value.status_code == 403
+    _assert_auth_error(
+        cross_site_error.value,
+        status_code=403,
+        detail="Cross-site request rejected",
+        code=AuthErrorCode.CROSS_SITE_REQUEST_REJECTED,
+    )
 
     with pytest.raises(HTTPException) as mismatch_error:
         validate_csrf_request(
@@ -172,7 +278,48 @@ def test_csrf_validation_rejects_cross_site_and_mismatched_tokens():
             config,
             require_token=True,
         )
-    assert mismatch_error.value.status_code == 403
+    _assert_auth_error(
+        mismatch_error.value,
+        status_code=403,
+        detail="Invalid CSRF token",
+        code=AuthErrorCode.INVALID_CSRF_TOKEN,
+    )
+
+
+def test_csrf_validation_rejects_untrusted_and_missing_tokens():
+    config = _config()
+
+    with pytest.raises(HTTPException) as untrusted_error:
+        validate_csrf_request(
+            _request(
+                headers={
+                    "origin": "http://malicious.example",
+                    "x-csrf-token": "csrf-token",
+                },
+                cookies={config.csrf_cookie_name: "csrf-token"},
+            ),
+            config,
+            require_token=True,
+        )
+    _assert_auth_error(
+        untrusted_error.value,
+        status_code=403,
+        detail="Untrusted request origin",
+        code=AuthErrorCode.UNTRUSTED_ORIGIN,
+    )
+
+    with pytest.raises(HTTPException) as missing_token_error:
+        validate_csrf_request(
+            _request(),
+            config,
+            require_token=True,
+        )
+    _assert_auth_error(
+        missing_token_error.value,
+        status_code=403,
+        detail="Missing CSRF token",
+        code=AuthErrorCode.MISSING_CSRF_TOKEN,
+    )
 
 
 def test_router_helpers_login_refresh_and_logout():
@@ -237,6 +384,31 @@ def test_router_helpers_login_refresh_and_logout():
     assert refresh_store.records[-1].revoked_at is not None
 
 
+def test_login_rejects_invalid_credentials_with_stable_code():
+    user = _User(
+        id=uuid4(),
+        email="user@example.com",
+        password_hash=hash_password("secret123"),
+    )
+
+    with pytest.raises(HTTPException) as error:
+        login_with_password(
+            form_data=SimpleNamespace(username=user.email, password="wrong"),
+            request=_request(headers={"origin": "http://localhost"}),
+            response=Response(),
+            user_repository=_UserRepository([user]),
+            refresh_store=_RefreshTokenStore(),
+            config=_config(),
+        )
+
+    _assert_auth_error(
+        error.value,
+        status_code=401,
+        detail="Invalid credentials",
+        code=AuthErrorCode.INVALID_CREDENTIALS,
+    )
+
+
 def test_fastapi_form_dependency_can_be_registered():
     app = FastAPI()
 
@@ -255,6 +427,42 @@ def test_current_claims_dependency_is_exported_and_decodes_token():
     claims = dependency(token)
 
     assert claims["sub"] == "user-1"
+
+
+def test_decode_access_token_reports_stable_error_codes():
+    config = _config()
+
+    with pytest.raises(HTTPException) as invalid_token_error:
+        decode_access_token("not-a-jwt", config)
+    _assert_auth_error(
+        invalid_token_error.value,
+        status_code=401,
+        detail="Invalid token",
+        code=AuthErrorCode.INVALID_ACCESS_TOKEN,
+    )
+
+    invalid_type_token = _signed_token(
+        config,
+        {"sub": "user-1", "typ": "refresh"},
+    )
+    with pytest.raises(HTTPException) as invalid_type_error:
+        decode_access_token(invalid_type_token, config)
+    _assert_auth_error(
+        invalid_type_error.value,
+        status_code=401,
+        detail="Invalid token type",
+        code=AuthErrorCode.INVALID_TOKEN_TYPE,
+    )
+
+    missing_subject_token = _signed_token(config, {"typ": "access"})
+    with pytest.raises(HTTPException) as invalid_payload_error:
+        decode_access_token(missing_subject_token, config)
+    _assert_auth_error(
+        invalid_payload_error.value,
+        status_code=401,
+        detail="Invalid token payload",
+        code=AuthErrorCode.INVALID_TOKEN_PAYLOAD,
+    )
 
 
 def _config() -> CookieAuthConfig:
@@ -331,8 +539,8 @@ class _UserRepository:
 
 
 class _RefreshTokenStore:
-    def __init__(self) -> None:
-        self.records: list[_RefreshToken] = []
+    def __init__(self, records: list[_RefreshToken] | None = None) -> None:
+        self.records = list(records or [])
         self.commits = 0
 
     def create(
@@ -361,3 +569,24 @@ class _RefreshTokenStore:
 
     def commit(self) -> None:
         self.commits += 1
+
+
+def _assert_auth_error(
+    error: HTTPException,
+    *,
+    status_code: int,
+    detail: str,
+    code: AuthErrorCode,
+) -> None:
+    assert error.status_code == status_code
+    assert error.detail == detail
+    assert error.headers == {AUTH_ERROR_CODE_HEADER: code.value}
+
+
+def _signed_token(
+    config: CookieAuthConfig,
+    payload: dict[str, object],
+) -> str:
+    from jose import jwt
+
+    return jwt.encode(payload, config.jwt_secret, algorithm=config.jwt_alg)

@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import secrets
 
-from fastapi import HTTPException, Request, Response
+from fastapi import Request, Response
 
 from fastapi_cookie_auth.config import CookieAuthConfig
+from fastapi_cookie_auth.errors import AuthErrorCode, auth_http_exception
 
 
 def new_csrf_token() -> str:
@@ -58,7 +59,11 @@ def validate_csrf_request(
 def _validate_fetch_metadata(request: Request) -> None:
     fetch_site = request.headers.get("sec-fetch-site")
     if fetch_site == "cross-site":
-        raise HTTPException(status_code=403, detail="Cross-site request rejected")
+        raise auth_http_exception(
+            status_code=403,
+            detail="Cross-site request rejected",
+            code=AuthErrorCode.CROSS_SITE_REQUEST_REJECTED,
+        )
 
 
 def _validate_origin(request: Request, config: CookieAuthConfig) -> None:
@@ -66,7 +71,11 @@ def _validate_origin(request: Request, config: CookieAuthConfig) -> None:
     if not origin or not config.trusted_origins:
         return
     if origin not in config.trusted_origins:
-        raise HTTPException(status_code=403, detail="Untrusted request origin")
+        raise auth_http_exception(
+            status_code=403,
+            detail="Untrusted request origin",
+            code=AuthErrorCode.UNTRUSTED_ORIGIN,
+        )
 
 
 def _validate_double_submit_token(
@@ -76,6 +85,14 @@ def _validate_double_submit_token(
     header_token = request.headers.get(config.csrf_header_name)
     cookie_token = request.cookies.get(config.csrf_cookie_name)
     if not header_token or not cookie_token:
-        raise HTTPException(status_code=403, detail="Missing CSRF token")
+        raise auth_http_exception(
+            status_code=403,
+            detail="Missing CSRF token",
+            code=AuthErrorCode.MISSING_CSRF_TOKEN,
+        )
     if not secrets.compare_digest(header_token, cookie_token):
-        raise HTTPException(status_code=403, detail="Invalid CSRF token")
+        raise auth_http_exception(
+            status_code=403,
+            detail="Invalid CSRF token",
+            code=AuthErrorCode.INVALID_CSRF_TOKEN,
+        )
